@@ -9,6 +9,7 @@ import { Input } from "./ui/input";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Download, Upload } from "lucide-react";
+// import { Blob } from "buffer";
 
 const ShareInfo = () => {
   const [socket, setSocket] = useState<any>(undefined);
@@ -18,16 +19,32 @@ const ShareInfo = () => {
   const [roomID, setRoomID] = useState("");
   const [socketID, setSocketID] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [receivedFile, setReceivedFile] = useState(null);
 
   const handleFileUpload = (e: any) => {
     e.preventDefault();
 
     if (uploadedFile) {
-      console.log("Uploaded file:", uploadedFile);
-
       socket.emit("uploadFile", uploadedFile[0], roomID);
     } else {
       console.log("No file uploaded.");
+    }
+  };
+
+  const handleDownload = (e: any) => {
+    e.preventDefault();
+
+    if (receivedFile) {
+      const link = document.createElement("a");
+      link.href = receivedFile.downloadLink;
+      link.download = "image.jpg"; // Specify the filename for the downloaded file
+      document.body.appendChild(link);
+
+      // Trigger the click event on the link
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
     }
   };
 
@@ -72,15 +89,15 @@ const ShareInfo = () => {
   };
 
   useEffect(() => {
-    const socket = io("http://localhost:4000");
+    const socket = io("https://shareboard-v2.onrender.com/");
 
     socket.on("message", (message) => {
       setInbox((inbox: any) => [...inbox, message]);
     });
 
-    socket.on("uploadFile", (receivedUploadedFile) => {
-      console.log(receivedUploadedFile);
-      setUploadedFile(receivedUploadedFile);
+    socket.on("fileUploaded", (receivedFile) => {
+      console.log(receivedFile);
+      setReceivedFile(receivedFile);
     });
 
     setSocket(socket);
@@ -100,7 +117,7 @@ const ShareInfo = () => {
                   }}
                   placeholder="Enter Room ID"
                 />
-                <form className="flex w-full justify-center gap-2 mt-1">
+                <div className="flex w-full justify-center gap-2 mt-1">
                   <Button
                     type="submit"
                     onClick={(e) => {
@@ -122,7 +139,7 @@ const ShareInfo = () => {
                     Leave room
                   </Button>
                   <ToastContainer />
-                </form>
+                </div>
               </div>
             </div>
 
@@ -140,7 +157,16 @@ const ShareInfo = () => {
                   <Upload />
                 </Button>
                 <div>
-                  {uploadedFile ? <Button variant="blue"><Download/></Button> : null}
+                  {receivedFile ? (
+                    <Button
+                      onClick={(e: any) => {
+                        handleDownload(e);
+                      }}
+                      variant="blue"
+                    >
+                      <Download />
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             </div>
