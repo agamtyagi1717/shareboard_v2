@@ -6,6 +6,9 @@ import { Label } from "./ui/label";
 import { io } from "socket.io-client";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Download, Upload } from "lucide-react";
 
 const ShareInfo = () => {
   const [socket, setSocket] = useState<any>(undefined);
@@ -14,6 +17,19 @@ const ShareInfo = () => {
   const [otherRoomID, setOtherRoomID] = useState("");
   const [roomID, setRoomID] = useState("");
   const [socketID, setSocketID] = useState("");
+  const [uploadedFile, setUploadedFile] = useState(null);
+
+  const handleFileUpload = (e: any) => {
+    e.preventDefault();
+
+    if (uploadedFile) {
+      console.log("Uploaded file:", uploadedFile);
+
+      socket.emit("uploadFile", uploadedFile[0], roomID);
+    } else {
+      console.log("No file uploaded.");
+    }
+  };
 
   const handleSendMessage = (e: any) => {
     e.preventDefault();
@@ -24,14 +40,35 @@ const ShareInfo = () => {
     e.preventDefault();
     setRoomID(otherRoomID);
     setSocketID(socket.id);
+    toast.success(`Joined Room ${otherRoomID}`, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
 
     socket.emit("joinRoom", otherRoomID);
   };
   const handleLeaveRoom = (e: any) => {
     e.preventDefault();
     setRoomID("");
+    setInbox([]);
+    toast.info(`Left Room ${otherRoomID}`, {
+      position: "top-right",
+      autoClose: 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
 
-    socket.on("disconnect");
+    socket.emit("leaveRoom", roomID);
   };
 
   useEffect(() => {
@@ -41,6 +78,11 @@ const ShareInfo = () => {
       setInbox((inbox: any) => [...inbox, message]);
     });
 
+    socket.on("uploadFile", (receivedUploadedFile) => {
+      console.log(receivedUploadedFile);
+      setUploadedFile(receivedUploadedFile);
+    });
+
     setSocket(socket);
   }, []);
 
@@ -48,7 +90,7 @@ const ShareInfo = () => {
     <div className="flex sm:flex-row flex-col justify-center items-center gap-7 w-full">
       <Card className="sm:w-[450px] relative w-[75%] pt-6">
         <CardContent>
-          <form>
+          <form className="flex flex-col gap-7">
             <div>
               <div className="flex flex-col gap-2">
                 <Label>Choose a unique room ID</Label>
@@ -58,7 +100,7 @@ const ShareInfo = () => {
                   }}
                   placeholder="Enter Room ID"
                 />
-                <form className="flex w-full justify-center gap-2">
+                <form className="flex w-full justify-center gap-2 mt-1">
                   <Button
                     type="submit"
                     onClick={(e) => {
@@ -79,7 +121,27 @@ const ShareInfo = () => {
                   >
                     Leave room
                   </Button>
+                  <ToastContainer />
                 </form>
+              </div>
+            </div>
+
+            <div>
+              <Label>Send a file</Label>
+              <div className="flex gap-3">
+                <Input
+                  type="file"
+                  onChange={(e: any) => setUploadedFile(e.target.files)}
+                />
+                <Button
+                  onClick={handleFileUpload}
+                  disabled={roomID ? false : true}
+                >
+                  <Upload />
+                </Button>
+                <div>
+                  {uploadedFile ? <Button variant="blue"><Download/></Button> : null}
+                </div>
               </div>
             </div>
           </form>
@@ -107,7 +169,7 @@ const ShareInfo = () => {
                 ) : (
                   <div className="">
                     <div
-                      className="bg-gray-700 rounded-md px-3 py-1 max-w-[300px] text-start"
+                      className="bg-gray-700 text-white rounded-md px-3 py-1 max-w-[300px] text-start"
                       key={index}
                     >
                       {pair.message}
@@ -122,7 +184,7 @@ const ShareInfo = () => {
                 onChange={(e) => {
                   setMessage({ message: e.target.value, socketId: socket.id });
                 }}
-                placeholder="Start Typing..."
+                placeholder={`Send message in ${roomID}`}
               />
               <Button
                 onClick={(e) => {

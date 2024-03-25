@@ -22,6 +22,7 @@
     "randomatic": "^3.1.1",
     "react": "^18",
     "react-dom": "^18",
+    "react-toastify": "^10.0.5",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.5",
     "streamsaver": "^2.0.6",

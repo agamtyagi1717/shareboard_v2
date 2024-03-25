@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const fs = require('fs')
 
 const app = express();
 
@@ -32,8 +33,15 @@ io.on("connection", (socket) => {
     socket.join(roomID);
   })
 
-  socket.on("disconnect", ()=>{
-    console.log("User disconnected");
+  socket.on("leaveRoom", (roomID)=>{
+    console.log("Leaving room: "+ roomID)
+    socket.leave(roomID)
+  })
+
+  socket.on("uploadFile", (uploadedFile, roomID) => {
+    console.log(uploadedFile, roomID);
+
+    io.to(roomID).emit(uploadedFile);
   })
 });
 
