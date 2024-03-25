@@ -89,7 +89,7 @@ const ShareInfo = () => {
   };
 
   useEffect(() => {
-    const socket = io("https://shareboard-v2.onrender.com/");
+    const socket = io("https://shareboard-v2.onrender.com");
 
     socket.on("message", (message) => {
       setInbox((inbox: any) => [...inbox, message]);

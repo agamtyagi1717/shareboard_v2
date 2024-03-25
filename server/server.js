@@ -9,7 +9,7 @@ const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://shareboard-v2.vercel.app/",
+    origin: "https://shareboard-v2.vercel.app",
     methods: ["GET", "POST"],
   },
 });
@@ -56,6 +56,6 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(4000, () => {
+httpServer.listen("https://shareboard-v2.onrender.com", () => {
   console.log("App is listening on port 4000");
 });
