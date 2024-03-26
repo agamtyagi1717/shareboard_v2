@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
     if (roomID.length) {
       io.to(roomID).emit("message", message);
     } else {
-      io.emit("message", message);
+      // io.emit("message", message);
     }
   });
 
@@ -39,20 +39,9 @@ io.on("connection", (socket) => {
 
   socket.on("uploadFile", (uploadedFile, roomID) => {
     const buffer = Buffer.from(uploadedFile);
-    console.log(buffer, roomID);
+    console.log(buffer , roomID);
 
-    const fileName = "image.jpg";
-
-    fs.writeFile(fileName, buffer, (err) => {
-      if (err) {
-        console.error("Error saving file:", err);
-        return;
-      }
-
-      const downloadLink = `${fileName}`;
-
-      io.emit("fileUploaded", { downloadLink, roomID });
-    });
+    io.emit("fileUploaded", { buffer, roomID });
   });
 });
 

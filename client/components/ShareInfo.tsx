@@ -62,7 +62,7 @@ const ShareInfo = () => {
     setRoomID(otherRoomID);
     setSocketID(socket.id);
     if (otherRoomID) {
-      toast.success(`Joined Room ${otherRoomID}`, {
+      toast.success(`${username} joined Room ${otherRoomID}`, {
         position: "top-right",
         autoClose: 1000,
         hideProgressBar: false,
@@ -84,6 +84,16 @@ const ShareInfo = () => {
         theme: "dark",
       });
     }
+    socket.emit(
+      "message",
+      otherRoomID,
+      {
+        message: `${username} joined room ${otherRoomID}`,
+        socketId: socket.id,
+        username: "Admin",
+      },
+      username
+    );
 
     socket.emit("joinRoom", otherRoomID);
   };
@@ -101,8 +111,18 @@ const ShareInfo = () => {
       progress: undefined,
       theme: "dark",
     });
-
     socket.emit("leaveRoom", roomID);
+
+    socket.emit(
+      "message",
+      roomID,
+      {
+        message: `${username} left room ${roomID}`,
+        socketId: socket.id,
+        username: "Admin",
+      },
+      username
+    );
   };
 
   useEffect(() => {
@@ -202,30 +222,38 @@ const ShareInfo = () => {
           </div>
           <CardContent className="h-[430px] overflow-auto">
             {inbox.map((messageInfo: any, index: number) => (
-              <div
-                className={`flex flex-col py-2 ${
-                  socketID == messageInfo.socketId ? "items-end" : "items-start"
-                }`}
-              >
-                {socketID == messageInfo.socketId ? (
-                  <div className="text-end">
-                    <p className="text-xs">{messageInfo.username}</p>
-                    <div
-                      className="bg-cyan-400 rounded-tr-none rounded-md px-5 py-1 max-w-[300px]"
-                      key={index}
-                    >
-                      {messageInfo.message}
-                    </div>
-                  </div>
+              <div>
+                {messageInfo.username == "Admin" ? (
+                  <div className="text-xs text-center">{messageInfo.message}</div>
                 ) : (
-                  <div className="text-start">
-                    <p className="text-xs">{messageInfo.username}</p>
-                    <div
-                      className="bg-gray-700 text-white rounded-tl-none rounded-md px-3 py-1 max-w-[300px]"
-                      key={index}
-                    >
-                      {messageInfo.message}
-                    </div>
+                  <div
+                    className={`flex flex-col py-2 ${
+                      socketID == messageInfo.socketId
+                        ? "items-end"
+                        : "items-start"
+                    }`}
+                  >
+                    {socketID == messageInfo.socketId ? (
+                      <div className="text-end">
+                        <p className="text-xs">{messageInfo.username}</p>
+                        <div
+                          className="bg-cyan-400 rounded-tr-none rounded-md px-5 py-1 max-w-[300px]"
+                          key={index}
+                        >
+                          {messageInfo.message}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-start">
+                        <p className="text-xs">{messageInfo.username}</p>
+                        <div
+                          className="bg-gray-700 text-white rounded-tl-none rounded-md px-3 py-1 max-w-[300px]"
+                          key={index}
+                        >
+                          {messageInfo.message}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
