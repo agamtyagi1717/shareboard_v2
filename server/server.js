@@ -17,8 +17,8 @@ const io = new Server(httpServer, {
 io.on("connection", (socket) => {
   console.log(`User connected`);
 
-  socket.on("message", (roomID, message) => {
-    console.log(roomID, message);
+  socket.on("message", (roomID, message, username) => {
+    console.log(roomID, message, username);
 
     if (roomID.length) {
       io.to(roomID).emit("message", message);

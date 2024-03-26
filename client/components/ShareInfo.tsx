@@ -14,12 +14,13 @@ import { Download, Upload } from "lucide-react";
 const ShareInfo = () => {
   const [socket, setSocket] = useState<any>(undefined);
   const [inbox, setInbox] = useState<any>([]);
-  const [message, setMessage] = useState({ message: "", socketId: "" });
+  const [message, setMessage] = useState({ message: "", socketId: "", username: "" });
   const [otherRoomID, setOtherRoomID] = useState("");
   const [roomID, setRoomID] = useState("");
   const [socketID, setSocketID] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
   const [receivedFile, setReceivedFile] = useState(null);
+  const [ username, setUsername] = useState("");
 
   const handleFileUpload = (e: any) => {
     e.preventDefault();
@@ -48,7 +49,7 @@ const ShareInfo = () => {
 
   const handleSendMessage = (e: any) => {
     e.preventDefault();
-    socket.emit("message", roomID, message);
+    socket.emit("message", roomID, message, username);
   };
 
   const handleJoinRoom = (e: any) => {
@@ -103,11 +104,18 @@ const ShareInfo = () => {
 
   return (
     <div className="flex sm:flex-row flex-col justify-center items-center gap-7 w-full">
-      <Card className="sm:w-[450px] relative w-[75%] pt-6">
+      <Card className="sm:w-[450px] relative w-[85%] pt-6">
         <CardContent>
           <form className="flex flex-col gap-7">
             <div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-4">
+                <Label>What's your name?</Label>
+                <Input
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                  }}
+                  placeholder="Enter your name"
+                />
                 <Label>Choose a unique room ID</Label>
                 <Input
                   onChange={(e) => {
@@ -175,28 +183,30 @@ const ShareInfo = () => {
       {roomID ? (
         <Card className="sm:w-[450px] w-[75%] h-[500px] relative overflow-auto">
           <CardContent className="h-[430px] overflow-auto">
-            {inbox.map((pair: any, index: number) => (
+            {inbox.map((messageInfo: any, index: number) => (
               <div
                 className={`flex flex-col py-2 ${
-                  socketID == pair.socketId ? "items-end" : "items-start"
+                  socketID == messageInfo.socketId ? "items-end" : "items-start"
                 }`}
               >
-                {socketID == pair.socketId ? (
-                  <div className="">
+                {socketID == messageInfo.socketId ? (
+                  <div className="text-end">
+                    <p className="text-xs">{messageInfo.username}</p>
                     <div
-                      className="bg-blue-400 rounded-md px-5 py-1 max-w-[300px] text-end"
+                      className="bg-cyan-400 rounded-md px-5 py-1 max-w-[300px]"
                       key={index}
                     >
-                      {pair.message}
+                      {messageInfo.message}                      
                     </div>
                   </div>
                 ) : (
-                  <div className="">
+                  <div className="text-start">
+                    <p className="text-xs">{messageInfo.username}</p>
                     <div
-                      className="bg-gray-700 text-white rounded-md px-3 py-1 max-w-[300px] text-start"
+                      className="bg-gray-700 text-white rounded-md px-3 py-1 max-w-[300px]"
                       key={index}
                     >
-                      {pair.message}
+                      {messageInfo.message}
                     </div>
                   </div>
                 )}
@@ -206,7 +216,7 @@ const ShareInfo = () => {
             <form className="flex gap-2 absolute bottom-5 left-2 right-2">
               <Input
                 onChange={(e) => {
-                  setMessage({ message: e.target.value, socketId: socket.id });
+                  setMessage({ message: e.target.value, socketId: socket.id, username: username });
                 }}
                 placeholder={`Send message in ${roomID}`}
               />
