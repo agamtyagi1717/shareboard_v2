@@ -14,13 +14,17 @@ import { Download, Upload } from "lucide-react";
 const ShareInfo = () => {
   const [socket, setSocket] = useState<any>(undefined);
   const [inbox, setInbox] = useState<any>([]);
-  const [message, setMessage] = useState({ message: "", socketId: "", username: "" });
+  const [message, setMessage] = useState({
+    message: "",
+    socketId: "",
+    username: "",
+  });
   const [otherRoomID, setOtherRoomID] = useState("");
   const [roomID, setRoomID] = useState("");
   const [socketID, setSocketID] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
   const [receivedFile, setReceivedFile] = useState(null);
-  const [ username, setUsername] = useState("");
+  const [username, setUsername] = useState("");
 
   const handleFileUpload = (e: any) => {
     e.preventDefault();
@@ -43,29 +47,43 @@ const ShareInfo = () => {
       // link.click();
 
       // document.body.removeChild(link);
-      console.log(receivedFile)
+      console.log(receivedFile);
     }
   };
 
   const handleSendMessage = (e: any) => {
     e.preventDefault();
     socket.emit("message", roomID, message, username);
+    e.target.reset();
   };
 
   const handleJoinRoom = (e: any) => {
     e.preventDefault();
     setRoomID(otherRoomID);
     setSocketID(socket.id);
-    toast.success(`Joined Room ${otherRoomID}`, {
-      position: "top-right",
-      autoClose: 1000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
+    if (otherRoomID) {
+      toast.success(`Joined Room ${otherRoomID}`, {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } else {
+      toast.error(`Enter a room ID`, {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
 
     socket.emit("joinRoom", otherRoomID);
   };
@@ -123,29 +141,17 @@ const ShareInfo = () => {
                   }}
                   placeholder="Enter Room ID"
                 />
-                <div className="flex w-full justify-center gap-2 mt-1">
-                  <Button
-                    type="submit"
-                    onClick={(e) => {
-                      handleJoinRoom(e);
-                    }}
-                    variant="green"
-                    disabled={roomID ? true : false}
-                  >
-                    Enter room
-                  </Button>
-                  <Button
-                    type="submit"
-                    onClick={(e) => {
-                      handleLeaveRoom(e);
-                    }}
-                    variant="destructive"
-                    disabled={roomID ? false : true}
-                  >
-                    Leave room
-                  </Button>
-                  <ToastContainer />
-                </div>
+                <Button
+                  type="submit"
+                  onClick={(e) => {
+                    handleJoinRoom(e);
+                  }}
+                  variant="green"
+                  disabled={roomID ? true : false}
+                >
+                  Enter room
+                </Button>
+                <ToastContainer />
               </div>
             </div>
 
@@ -181,7 +187,19 @@ const ShareInfo = () => {
       </Card>
 
       {roomID ? (
-        <Card className="sm:w-[450px] w-[75%] h-[500px] relative overflow-auto">
+        <Card className="sm:w-[450px] w-[85%] h-[500px] relative overflow-auto">
+          <div className="border-b-[1px] flex justify-between items-center text-center p-2">
+            <p className="text-xl">{roomID}</p>
+            <Button
+              type="submit"
+              onClick={(e) => {
+                handleLeaveRoom(e);
+              }}
+              variant="destructive"
+            >
+              Leave room
+            </Button>
+          </div>
           <CardContent className="h-[430px] overflow-auto">
             {inbox.map((messageInfo: any, index: number) => (
               <div
@@ -193,17 +211,17 @@ const ShareInfo = () => {
                   <div className="text-end">
                     <p className="text-xs">{messageInfo.username}</p>
                     <div
-                      className="bg-cyan-400 rounded-md px-5 py-1 max-w-[300px]"
+                      className="bg-cyan-400 rounded-tr-none rounded-md px-5 py-1 max-w-[300px]"
                       key={index}
                     >
-                      {messageInfo.message}                      
+                      {messageInfo.message}
                     </div>
                   </div>
                 ) : (
                   <div className="text-start">
                     <p className="text-xs">{messageInfo.username}</p>
                     <div
-                      className="bg-gray-700 text-white rounded-md px-3 py-1 max-w-[300px]"
+                      className="bg-gray-700 text-white rounded-tl-none rounded-md px-3 py-1 max-w-[300px]"
                       key={index}
                     >
                       {messageInfo.message}
@@ -213,21 +231,23 @@ const ShareInfo = () => {
               </div>
             ))}
 
-            <form className="flex gap-2 absolute bottom-5 left-2 right-2">
+            <form
+              onSubmit={(e) => {
+                handleSendMessage(e);
+              }}
+              className="form1 flex gap-2 absolute bottom-5 left-2 right-2"
+            >
               <Input
                 onChange={(e) => {
-                  setMessage({ message: e.target.value, socketId: socket.id, username: username });
+                  setMessage({
+                    message: e.target.value,
+                    socketId: socket.id,
+                    username: username,
+                  });
                 }}
                 placeholder={`Send message in ${roomID}`}
               />
-              <Button
-                onClick={(e) => {
-                  handleSendMessage(e);
-                }}
-                type="submit"
-              >
-                Send
-              </Button>
+              <Button type="submit">Send</Button>
             </form>
           </CardContent>
         </Card>

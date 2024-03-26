@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 const Home = () => {
   return (
-    <div className="flex flex-col mt-[35vh] justify-center items-center">
+    <div className="flex flex-col mt-[25vh] justify-center items-center">
       <h1 className="sm:text-3xl text-xl sm:w-[810px] text-center mx-10">
         Effortlessly Share Files 🌐, Establish Direct Connections 🤝, and Engage
         in Instant Messaging 💬 with ShareBoard!

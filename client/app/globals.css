@@ -46,7 +46,6 @@
     --border: 12 6.5% 15.1%;
     --input: 12 6.5% 15.1%;
     --ring: 20.5 90.2% 48.2%;
-
     --radius: 0.5rem;
   }
 }
@@ -61,21 +60,15 @@
 }
 
 ::-webkit-scrollbar {
-  width: 8px; /* Width of the scrollbar */
+  width: 8px; 
 }
-
-/* Track */
 ::-webkit-scrollbar-track {
-  background: black; /* Color of the track */
+  background: black;
 }
-
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #e9580d; /* Color of the scrollbar handle */
-  border-radius: 6px; /* Radius of the scrollbar handle */
+  background: #e9580d;
+  border-radius: 6px;
 }
-
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #c54a09; /* Change color on hover */
+  background: #c54a09;
 }
