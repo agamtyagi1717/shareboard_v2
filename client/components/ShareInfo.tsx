@@ -40,8 +40,17 @@ const ShareInfo = () => {
     e.preventDefault();
 
     if (receivedFile) {
-      console.log(receivedFile);
       socket.emit("downloadFile", receivedFile);
+      
+      socket.on('fileData', (fileData: any) => {
+        console.log(fileData);
+
+        const blob = new Blob([fileData.data]);
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileData.fileName;
+        link.click();
+      });
     }
   };
 

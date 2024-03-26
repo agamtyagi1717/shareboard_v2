@@ -3,7 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const fs = require("fs");
-
+const { promisify } = require('util');
 const app = express();
 
 const httpServer = http.createServer(app);
@@ -41,22 +41,14 @@ io.on("connection", (socket) => {
     const buffer = Buffer.from(uploadedFile);
     console.log(buffer, roomID);
     io.to(roomID).emit("downloadFile", { buffer, roomID });
-    
-    socket.on("downloadFile", async (uploadedFile) => {
-      let FT = await import("file-type");
+  });
+  socket.on('downloadFile', async (uploadedFile) => {
+    let FT = await import('file-type');
+    const { ext } = await FT.fileTypeFromBuffer(uploadedFile.buffer);
 
-      const { ext, mime } = await FT.fileTypeFromBuffer(buffer);
+    const fileName = `file_${Date.now()}.${ext}`;
 
-      const fileName = `file_${Date.now()}.${ext}`;
-
-      fs.writeFile(fileName, buffer, (err) => {
-        if (err) {
-          console.error("Error writing file:", err);
-        } else {
-          console.log("File written successfully.");
-        }
-      });
-    });
+    socket.emit('fileData', { fileName, data: uploadedFile.buffer });
   });
 });
 
