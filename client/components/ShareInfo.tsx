@@ -40,14 +40,8 @@ const ShareInfo = () => {
     e.preventDefault();
 
     if (receivedFile) {
-      // const link = document.createElement("a");
-      // link.href = receivedFile.downloadLink;
-      // link.download = "image.jpg";
-      // document.body.appendChild(link);
-      // link.click();
-
-      // document.body.removeChild(link);
       console.log(receivedFile);
+      socket.emit("downloadFile", receivedFile);
     }
   };
 
@@ -132,7 +126,7 @@ const ShareInfo = () => {
       setInbox((inbox: any) => [...inbox, message]);
     });
 
-    socket.on("fileUploaded", (receivedFile) => {
+    socket.on("downloadFile", (receivedFile) => {
       console.log(receivedFile);
       setReceivedFile(receivedFile);
     });

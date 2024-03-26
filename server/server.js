@@ -39,9 +39,24 @@ io.on("connection", (socket) => {
 
   socket.on("uploadFile", (uploadedFile, roomID) => {
     const buffer = Buffer.from(uploadedFile);
-    console.log(buffer , roomID);
+    console.log(buffer, roomID);
+    io.to(roomID).emit("downloadFile", { buffer, roomID });
+    
+    socket.on("downloadFile", async (uploadedFile) => {
+      let FT = await import("file-type");
 
-    io.emit("fileUploaded", { buffer, roomID });
+      const { ext, mime } = await FT.fileTypeFromBuffer(buffer);
+
+      const fileName = `file_${Date.now()}.${ext}`;
+
+      fs.writeFile(fileName, buffer, (err) => {
+        if (err) {
+          console.error("Error writing file:", err);
+        } else {
+          console.log("File written successfully.");
+        }
+      });
+    });
   });
 });
 
