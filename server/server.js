@@ -56,6 +56,4 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen("https://shareboard-v2.onrender.com", () => {
-  console.log("App is listening on port 4000");
-});
+httpServer.listen(4000, "0.0.0.0");
