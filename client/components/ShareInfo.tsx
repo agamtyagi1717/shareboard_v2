@@ -35,16 +35,14 @@ const ShareInfo = () => {
     e.preventDefault();
 
     if (receivedFile) {
-      const link = document.createElement("a");
-      link.href = receivedFile.downloadLink;
-      link.download = "image.jpg"; // Specify the filename for the downloaded file
-      document.body.appendChild(link);
+      // const link = document.createElement("a");
+      // link.href = receivedFile.downloadLink;
+      // link.download = "image.jpg";
+      // document.body.appendChild(link);
+      // link.click();
 
-      // Trigger the click event on the link
-      link.click();
-
-      // Clean up
-      document.body.removeChild(link);
+      // document.body.removeChild(link);
+      console.log(receivedFile)
     }
   };
 
