@@ -34,6 +34,16 @@ const ShareInfo = () => {
     } else {
       console.log("No file uploaded.");
     }
+    socket.emit(
+      "message",
+      roomID,
+      {
+        message: `${username} sent a file`,
+        socketId: socket.id,
+        username: "Admin",
+      },
+      username
+    );
   };
 
   const handleDownload = (e: any) => {
@@ -41,15 +51,17 @@ const ShareInfo = () => {
 
     if (receivedFile) {
       socket.emit("downloadFile", receivedFile);
-      
-      socket.on('fileData', (fileData: any) => {
+
+      socket.on("fileData", (fileData: any) => {
         console.log(fileData);
 
         const blob = new Blob([fileData.data]);
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileData.fileName;
-        link.click();
+        const downloadLink = document.createElement("a");
+        downloadLink.href = window.URL.createObjectURL(blob);
+        downloadLink.download = fileData.fileName;
+        downloadLink.click();
+
+        document.removeChild(downloadLink);
       });
     }
   };
@@ -129,6 +141,7 @@ const ShareInfo = () => {
   };
 
   useEffect(() => {
+    // const socket = io("http://localhost:4000");
     const socket = io("https://shareboard-v2.onrender.com");
 
     socket.on("message", (message) => {
@@ -178,16 +191,17 @@ const ShareInfo = () => {
               </div>
             </div>
 
-            <div>
+            <Card className="p-3">
               <Label>Send a file</Label>
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-2">
                 <Input
                   type="file"
                   onChange={(e: any) => setUploadedFile(e.target.files)}
                 />
                 <Button
+                variant="outline"
                   onClick={handleFileUpload}
-                  disabled={roomID ? false : true}
+                  disabled={roomID && uploadedFile ? false : true}
                 >
                   <Upload />
                 </Button>
@@ -204,12 +218,12 @@ const ShareInfo = () => {
                   ) : null}
                 </div>
               </div>
-            </div>
+            </Card>
           </form>
         </CardContent>
       </Card>
 
-      {roomID ? (
+      {roomID && (
         <Card className="sm:w-[450px] w-[85%] h-[500px] relative overflow-auto">
           <div className="border-b-[1px] flex justify-between items-center text-center p-2">
             <p className="text-xl">{roomID}</p>
@@ -225,34 +239,30 @@ const ShareInfo = () => {
           </div>
           <CardContent className="h-[430px] overflow-auto">
             {inbox.map((messageInfo: any, index: number) => (
-              <div>
-                {messageInfo.username == "Admin" ? (
-                  <div className="text-xs text-center">{messageInfo.message}</div>
+              <div key={index}>
+                {messageInfo.username === "Admin" ? (
+                  <div className="text-xs text-center">
+                    {messageInfo.message}
+                  </div>
                 ) : (
                   <div
                     className={`flex flex-col py-2 ${
-                      socketID == messageInfo.socketId
+                      socketID === messageInfo.socketId
                         ? "items-end"
                         : "items-start"
                     }`}
                   >
-                    {socketID == messageInfo.socketId ? (
+                    {socketID === messageInfo.socketId ? (
                       <div className="text-end">
                         <p className="text-xs">{messageInfo.username}</p>
-                        <div
-                          className="bg-cyan-400 rounded-tr-none rounded-md px-5 py-1 max-w-[300px]"
-                          key={index}
-                        >
+                        <div className="bg-cyan-400 rounded-tr-none rounded-md px-5 py-1 max-w-[300px]">
                           {messageInfo.message}
                         </div>
                       </div>
                     ) : (
                       <div className="text-start">
                         <p className="text-xs">{messageInfo.username}</p>
-                        <div
-                          className="bg-gray-700 text-white rounded-tl-none rounded-md px-3 py-1 max-w-[300px]"
-                          key={index}
-                        >
+                        <div className="bg-gray-700 text-white rounded-tl-none rounded-md px-3 py-1 max-w-[300px]">
                           {messageInfo.message}
                         </div>
                       </div>
@@ -282,7 +292,7 @@ const ShareInfo = () => {
             </form>
           </CardContent>
         </Card>
-      ) : null}
+      )}
     </div>
   );
 };

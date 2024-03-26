@@ -2,14 +2,13 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const fs = require("fs");
-const { promisify } = require('util');
 const app = express();
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
+  maxHttpBufferSize: 1e8, pingTimeout: 60000,
   cors: {
-    origin: "https://shareboard-v2.vercel.app",
+    origin: ["http://localhost:3000", "https://shareboard-v2.vercel.app"],
     methods: ["GET", "POST"],
   },
 });
@@ -43,13 +42,13 @@ io.on("connection", (socket) => {
     io.to(roomID).emit("downloadFile", { buffer, roomID });
   });
   socket.on('downloadFile', async (uploadedFile) => {
-    let FT = await import('file-type');
-    const { ext } = await FT.fileTypeFromBuffer(uploadedFile.buffer);
-
-    const fileName = `file_${Date.now()}.${ext}`;
-
-    socket.emit('fileData', { fileName, data: uploadedFile.buffer });
-  });
+      let FT = await import('file-type');
+      const { ext } = await FT.fileTypeFromBuffer(uploadedFile.buffer);
+  
+      const fileName = `file_${Date.now()}.${ext}`;
+  
+      socket.emit('fileData', { fileName, data: uploadedFile.buffer });
+    });
 });
 
 httpServer.listen(4000, "0.0.0.0");
